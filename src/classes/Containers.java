@@ -1,7 +1,7 @@
 package classes;
 
 import java.util.LinkedList;
-
+//pas utilisé pour scenario de base
 public class Containers
 {
     private String groupe;

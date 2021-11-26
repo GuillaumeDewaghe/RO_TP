@@ -1,7 +1,7 @@
 package classes;
 
 import java.util.LinkedList;
-
+//pas utiliser dans le cadre de la simulation de scenario classique
 public class Barges
 {
     private String groupe;

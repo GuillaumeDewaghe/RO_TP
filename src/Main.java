@@ -1,5 +1,3 @@
-package sample;
-
 import classes.*;
 
 
@@ -14,6 +12,7 @@ public class Main
 {
     public static void main(String[] args)
     {
+        /***
         //creation des terminaux
         /*Terminal A = new Terminal(true,null,null);
         Terminal B = new Terminal(true,null,null);
@@ -24,7 +23,9 @@ public class Main
         Barges une = new Barges();
         Barges deux = new Barges();
         Barges trois = new Barges();
-        Barges quatre = new Barges();*/
+        Barges quatre = new Barges();
+        ***/
+
         //creation des demandes
         int temps=0;
         ArrayList<Demandes> listDemandes = new ArrayList<>();
@@ -174,7 +175,7 @@ public class Main
                             }
                             index++;
                         }
-                        if (!found){
+                        if (!found){//ici on gère l'attente
                             boolean present = false;
                             for (Bag bag : sacs){
                                 //sac déjà présent

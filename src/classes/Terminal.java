@@ -1,5 +1,5 @@
 package classes;
-
+//pas utilisé pour scenario de base
 import java.util.LinkedList;
 
 public class Terminal
