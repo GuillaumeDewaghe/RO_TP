@@ -13,18 +13,18 @@ public class Main
     public static void main(String[] args)
     {
         /***
-        //creation des terminaux
-        /*Terminal A = new Terminal(true,null,null);
-        Terminal B = new Terminal(true,null,null);
-        Terminal C = new Terminal(true,null,null);
-        Terminal D = new Terminal(true,null,null);
+         //creation des terminaux
+         /*Terminal A = new Terminal(true,null,null);
+         Terminal B = new Terminal(true,null,null);
+         Terminal C = new Terminal(true,null,null);
+         Terminal D = new Terminal(true,null,null);
 
-        //creation des barges
-        Barges une = new Barges();
-        Barges deux = new Barges();
-        Barges trois = new Barges();
-        Barges quatre = new Barges();
-        ***/
+         //creation des barges
+         Barges une = new Barges();
+         Barges deux = new Barges();
+         Barges trois = new Barges();
+         Barges quatre = new Barges();
+         ***/
 
         //creation des demandes
         int temps=0;
@@ -85,11 +85,13 @@ public class Main
                 }
             }
             if (b != null){
+
+                //on parcourt tous les évènement afin de créer les évènements suivants
                 for (Event e : b.getB()){
                     boolean found = false;
                     if (!e.getPosition().equals(e.getDemande().getDestination())){
+                        //notre évènement actuel se trouve à l'origine du service
                         if (temps == s1.getTempsDepartOrigine() && e.getPosition().equals(s1.getOrigine())){
-
                             //faire partir vers le prochain arret
                             found = true;
                             boolean present = false;
@@ -104,34 +106,35 @@ public class Main
                             if (!present){
                                 Bag bag = new Bag(s1.getArretList().get(0).getDateA());
                                 bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(0).getPosition(),e.getDemande()));
-                                sacs.add(b);
+                                sacs.add(bag);
                             }
                         }
+                        //notre évènement actuel se trouve à la fin du service
                         if (temps == s1.getTempsDechargementDestination() && e.getPosition().equals(s1.getDestination())){
                             //faire revenir au début
                             found = true;
                             boolean present = false;
                             for (Bag bag : sacs){
                                 //sac déjà présent
-                                if (bag.getDate() == s1.getTempsChargementOrigine()){
+                                if (bag.getDate() == 0){
                                     present = true;
                                     bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
                                 }
                             }
                             //sac non présent
                             if (!present){
-                                Bag bag = new Bag(s1.getTempsChargementOrigine());
+                                Bag bag = new Bag(0);
                                 bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
-                                sacs.add(b);
+                                sacs.add(bag);
                             }
                         }
                         int index = 0;
+                        //on vérifie les différents arrêts
                         for (Arret a: s1.getArretList()){
+                            //notre évènement actuel se trouve à un arrêt du service
                             if (temps == a.getDateD() && e.getPosition().equals(a.getPosition())){
-                                System.out.println(a.getPosition());
+                                found = true;
                                 if (s1.getArretList().get(1).equals(a)){
-                                    System.out.println("aaaaaaaaaaaaaa");
-                                    found = true;
                                     boolean present = false;
                                     for (Bag bag : sacs){
                                         //sac déjà présent
@@ -140,6 +143,7 @@ public class Main
                                             if (temps != bag.getDate()){
                                                 bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
                                             }else{
+                                                //l'évènement se déroule au même moment que celui-ci
                                                 intermediaire.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
                                             }
 
@@ -149,10 +153,9 @@ public class Main
                                     if (!present){
                                         Bag bag = new Bag(s1.getTempsArriveDestination());
                                         bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
-                                        sacs.add(b);
+                                        sacs.add(bag);
                                     }
                                 }else{
-                                    found = true;
                                     boolean present = false;
                                     for (Bag bag : sacs){
                                         //sac déjà présent
@@ -161,6 +164,7 @@ public class Main
                                             if (temps != bag.getDate()) {
                                                 bag.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
                                             }else{
+                                                //l'évènement se déroule au même moment que celui-ci
                                                 intermediaire.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
                                             }
                                         }
@@ -169,7 +173,7 @@ public class Main
                                     if (!present){
                                         Bag bag = new Bag(s1.getArretList().get(index+1).getDateA());
                                         bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(index+1).getPosition(),e.getDemande()));
-                                        sacs.add(b);
+                                        sacs.add(bag);
                                     }
                                 }
                             }
@@ -182,7 +186,7 @@ public class Main
                                 int temp;
                                 if (temps == 13){
                                     temp = 0;
-                                }else temp = temps+1;
+                                }else{ temp = temps+1;}
                                 if (bag.getDate() == temp){
                                     present = true;
                                     bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
@@ -193,40 +197,161 @@ public class Main
                                 int temp;
                                 if (temps == 13){
                                     temp = 0;
-                                }else temp = temps+1;
+                                }else{ temp = temps+1;}
                                 Bag bag = new Bag(temp);
                                 bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
                                 sacs.add(bag);
                             }
+                        }else{
+                            //on fait un évènement de départ pour le faire quitter le port
+                            intermediaire.getB().add(new Event(e.getDemande().getID(),"départ",e.getPosition(),e.getDemande()));
                         }
                     }else{
+                        //une demande est arrivée a bon port alors on réduit le nombre de demandes en cours
                         nbDemande--;
                     }
                 }
             }
+
+            //on rajoute les évènements intermédiaires au sac d'évènement actuels
             for (Event e : intermediaire.getB()){
                 b.getB().add(e);
-
             }
 
-            //for each de la liste de service
-                //if un service est disponible
-                    //et que les temps corresponde avec la demande
-                        // effectuer la demande puis la supprimer de la liste de demande
+            //on relance pour les évènements d'arrivé si il y en a en même temps que nos évènements actuels
+            //exemple : on quitte un port a un certain moment et on arrive a un autre port au même moment
+            for (Event e : intermediaire.getB()){
+                boolean found = false;
+                if (e.getType().equals("arrive")){
+                    //notre évènement actuel se trouve à l'origine du service
+                    if (temps == s1.getTempsDepartOrigine() && e.getPosition().equals(s1.getOrigine())){
+                        //faire partir vers le prochain arret
+                        found = true;
+                        boolean present = false;
+                        for (Bag bag : sacs){
+                            //sac déjà présent
+                            if (bag.getDate() == s1.getArretList().get(0).getDateA()){
+                                present = true;
+                                bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(0).getPosition(),e.getDemande()));
+                            }
+                        }
+                        //sac non présent
+                        if (!present){
+                            Bag bag = new Bag(s1.getArretList().get(0).getDateA());
+                            bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(0).getPosition(),e.getDemande()));
+                            sacs.add(bag);
+                        }
+                    }
+                    //notre évènement actuel se trouve à la fin du service
+                    if (temps == s1.getTempsDechargementDestination() && e.getPosition().equals(s1.getDestination())){
+                        //faire revenir au début
+                        found = true;
+                        boolean present = false;
+                        for (Bag bag : sacs){
+                            //sac déjà présent
+                            if (bag.getDate() == 0){
+                                present = true;
+                                bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
+                            }
+                        }
+                        //sac non présent
+                        if (!present){
+                            Bag bag = new Bag(0);
+                            bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
+                            sacs.add(bag);
+                        }
+                    }
+                    int index = 0;
+                    //on vérifie les différents arrêts
+                    for (Arret a: s1.getArretList()){
+                        //notre évènement actuel se trouve à un arrêt du service
+                        if (temps == a.getDateD() && e.getPosition().equals(a.getPosition())){
+                            found = true;
+                            if (s1.getArretList().get(1).equals(a)){
+                                boolean present = false;
+                                for (Bag bag : sacs){
+                                    //sac déjà présent
+                                    if (bag.getDate() == s1.getTempsArriveDestination()){
+                                        present = true;
+                                        if (temps != bag.getDate()){
+                                            bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                        }else{
+                                            //l'évènement se déroule au même moment que celui-ci
+                                            intermediaire.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                        }
 
+                                    }
+                                }
+                                //sac non présent
+                                if (!present){
+                                    Bag bag = new Bag(s1.getTempsArriveDestination());
+                                    bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                    sacs.add(bag);
+                                }
+                            }else{
+                                boolean present = false;
+                                for (Bag bag : sacs){
+                                    //sac déjà présent
+                                    if (bag.getDate() == s1.getArretList().get(index+1).getDateA()){
+                                        present = true;
+                                        if (temps != bag.getDate()) {
+                                            bag.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
+                                        }else{
+                                            //l'évènement se déroule au même moment que celui-ci
+                                            intermediaire.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
+                                        }
+                                    }
+                                }
+                                //sac non présent
+                                if (!present){
+                                    Bag bag = new Bag(s1.getArretList().get(index+1).getDateA());
+                                    bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(index+1).getPosition(),e.getDemande()));
+                                    sacs.add(bag);
+                                }
+                            }
+                        }
+                        index++;
+                    }
+                    if (!found){//ici on gère l'attente
+                        boolean present = false;
+                        for (Bag bag : sacs){
+                            //sac déjà présent
+                            int temp;
+                            if (temps == 13){
+                                temp = 0;
+                            }else{ temp = temps+1;}
+                            if (bag.getDate() == temp){
+                                present = true;
+                                bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
+                            }
+                        }
+                        //sac non présent
+                        if (!present){
+                            int temp;
+                            if (temps == 13){
+                                temp = 0;
+                            }else{ temp = temps+1;}
+                            Bag bag = new Bag(temp);
+                            bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
+                            sacs.add(bag);
+                        }
+                    }else{
+                        //on fait un évènement de départ pour le faire quitter le port
+                        intermediaire.getB().add(new Event(e.getDemande().getID(),"départ",e.getPosition(),e.getDemande()));
+                    }
+                }
+            }
 
-            //faire en sorte de regarder les demandes et faire agir les barges en fonction des services
-            //si un service est disponible , realiser une demande
-            //sinon attendre qu'un service soit possible
+            //afficher les évènements courants et les supprimer
             if (b!=null){
                 System.out.println(temps + " :");
                 for (Event e: b.getB()){
                     System.out.println(e.getType() + " de la demande " + e.getId() + " à la position " + e.getPosition());
                 }
-                System.out.println(sacs.size());
+                b.getB().clear();
                 sacs.remove(b);
-                System.out.println(sacs.size());
             }
+
             temps++;
             if (temps>13){//gere les 14 demi journée
                 temps=0;
@@ -266,7 +391,7 @@ public class Main
                     for (int i = 0; i<temp2.length; i++){
                         String[] temp3 = temp2[i].split(",");
                         if (temp3.length == 3)
-                        services.getArretList().add(new Arret(temp3[0],Integer.parseInt(temp3[1]),Integer.parseInt(temp3[2])));
+                            services.getArretList().add(new Arret(temp3[0],Integer.parseInt(temp3[1]),Integer.parseInt(temp3[2])));
                     }
                 }
                 listServices.add(services);
