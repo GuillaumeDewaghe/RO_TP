@@ -50,11 +50,164 @@ public class Main
                     + " Date Temps Dechargement Destination : " + service.getTempsDechargementDestination()
                     + " Date Temps Depart Origine : " + service.getTempsDepartOrigine()
                     + " Date Temps Arrive Destination : " + service.getTempsArriveDestination()
-                    + " Volume : " + service.getNumber() );
+                    + " Volume : " + service.getNumber()
+                    + " Arrêts : " + service.getArretList());
         }
 
+        List<Bag> sacs = new ArrayList<Bag>();
+        int nbDemande = 0;
+        for (Demandes d : listDemandes){
+            boolean present = false;
+            for (Bag b : sacs){
+                //sac déjà présent
+                if (b.getDate() == d.getDateTransport()){
+                    present = true;
+                    b.getB().add(new Event(d.getID(),"arrive",d.getOrigine(),d));
+                }
+            }
+            //sac non présent
+            if (!present){
+                Bag b = new Bag(d.getDateTransport());
+                b.getB().add(new Event(d.getID(),"arrive",d.getOrigine(),d));
+                sacs.add(b);
+            }
+            nbDemande++;
+        }
+        Services s1 = listServices.get(0);
         //chaque i correspond a chaque demi journée
-        /*while (!listDemandes.isEmpty()){
+        while (nbDemande>0){
+            Bag b = null;
+            Bag intermediaire = new Bag(temps);
+            for (Bag s : sacs){
+                if (s.getDate() == temps){
+                    b = s;
+                }
+            }
+            if (b != null){
+                for (Event e : b.getB()){
+                    boolean found = false;
+                    if (!e.getPosition().equals(e.getDemande().getDestination())){
+                        if (temps == s1.getTempsDepartOrigine() && e.getPosition().equals(s1.getOrigine())){
+
+                            //faire partir vers le prochain arret
+                            found = true;
+                            boolean present = false;
+                            for (Bag bag : sacs){
+                                //sac déjà présent
+                                if (bag.getDate() == s1.getArretList().get(0).getDateA()){
+                                    present = true;
+                                    bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(0).getPosition(),e.getDemande()));
+                                }
+                            }
+                            //sac non présent
+                            if (!present){
+                                Bag bag = new Bag(s1.getArretList().get(0).getDateA());
+                                bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(0).getPosition(),e.getDemande()));
+                                sacs.add(b);
+                            }
+                        }
+                        if (temps == s1.getTempsDechargementDestination() && e.getPosition().equals(s1.getDestination())){
+                            //faire revenir au début
+                            found = true;
+                            boolean present = false;
+                            for (Bag bag : sacs){
+                                //sac déjà présent
+                                if (bag.getDate() == s1.getTempsChargementOrigine()){
+                                    present = true;
+                                    bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
+                                }
+                            }
+                            //sac non présent
+                            if (!present){
+                                Bag bag = new Bag(s1.getTempsChargementOrigine());
+                                bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getOrigine(),e.getDemande()));
+                                sacs.add(b);
+                            }
+                        }
+                        int index = 0;
+                        for (Arret a: s1.getArretList()){
+                            if (temps == a.getDateD() && e.getPosition().equals(a.getPosition())){
+                                System.out.println(a.getPosition());
+                                if (s1.getArretList().get(1).equals(a)){
+                                    System.out.println("aaaaaaaaaaaaaa");
+                                    found = true;
+                                    boolean present = false;
+                                    for (Bag bag : sacs){
+                                        //sac déjà présent
+                                        if (bag.getDate() == s1.getTempsArriveDestination()){
+                                            present = true;
+                                            if (temps != bag.getDate()){
+                                                bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                            }else{
+                                                intermediaire.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                            }
+
+                                        }
+                                    }
+                                    //sac non présent
+                                    if (!present){
+                                        Bag bag = new Bag(s1.getTempsArriveDestination());
+                                        bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getDestination(),e.getDemande()));
+                                        sacs.add(b);
+                                    }
+                                }else{
+                                    found = true;
+                                    boolean present = false;
+                                    for (Bag bag : sacs){
+                                        //sac déjà présent
+                                        if (bag.getDate() == s1.getArretList().get(index+1).getDateA()){
+                                            present = true;
+                                            if (temps != bag.getDate()) {
+                                                bag.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
+                                            }else{
+                                                intermediaire.getB().add(new Event(e.getDemande().getID(), "arrive", s1.getArretList().get(index + 1).getPosition(), e.getDemande()));
+                                            }
+                                        }
+                                    }
+                                    //sac non présent
+                                    if (!present){
+                                        Bag bag = new Bag(s1.getArretList().get(index+1).getDateA());
+                                        bag.getB().add(new Event(e.getDemande().getID(),"arrive",s1.getArretList().get(index+1).getPosition(),e.getDemande()));
+                                        sacs.add(b);
+                                    }
+                                }
+                            }
+                            index++;
+                        }
+                        if (!found){
+                            boolean present = false;
+                            for (Bag bag : sacs){
+                                //sac déjà présent
+                                int temp;
+                                if (temps == 13){
+                                    temp = 0;
+                                }else temp = temps+1;
+                                if (bag.getDate() == temp){
+                                    present = true;
+                                    bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
+                                }
+                            }
+                            //sac non présent
+                            if (!present){
+                                int temp;
+                                if (temps == 13){
+                                    temp = 0;
+                                }else temp = temps+1;
+                                Bag bag = new Bag(temp);
+                                bag.getB().add(new Event(e.getDemande().getID(),"attente",e.getPosition(),e.getDemande()));
+                                sacs.add(bag);
+                            }
+                        }
+                    }else{
+                        nbDemande--;
+                    }
+                }
+            }
+            for (Event e : intermediaire.getB()){
+                b.getB().add(e);
+
+            }
+
             //for each de la liste de service
                 //if un service est disponible
                     //et que les temps corresponde avec la demande
@@ -64,12 +217,21 @@ public class Main
             //faire en sorte de regarder les demandes et faire agir les barges en fonction des services
             //si un service est disponible , realiser une demande
             //sinon attendre qu'un service soit possible
+            if (b!=null){
+                System.out.println(temps + " :");
+                for (Event e: b.getB()){
+                    System.out.println(e.getType() + " de la demande " + e.getId() + " à la position " + e.getPosition());
+                }
+                System.out.println(sacs.size());
+                sacs.remove(b);
+                System.out.println(sacs.size());
+            }
             temps++;
             if (temps>13){//gere les 14 demi journée
                 temps=0;
             }
 
-        }*/
+        }
 
     }
 
@@ -96,22 +258,15 @@ public class Main
                 services.setTempsDepartOrigine(Integer.parseInt(temp[5]));
                 services.setTempsArriveDestination(Integer.parseInt(temp[6]) );
                 services.setNumber(Integer.parseInt(temp[7]) );
-                if(temp[8] != null)
+                if(temp.length == 9)
                 {
-                    System.out.println("aaaaaaaaaaaa");
                     //Séparation
                     String[] temp2 = temp[8].split(";");
-                    System.out.println("bbbbbbbbbbbb");
                     for (int i = 0; i<temp2.length; i++){
-                        String[] temp3 = temp[i].split(",");
-                        if (temp3.length != 0){
-                            for (int j =0)
-                            System.out.println(temp3);
-                            services.getArretList().add(new Arret(temp3[0],Integer.parseInt(temp3[1]),Integer.parseInt(temp3[2])));
-                            System.out.println("ccccccccccccc");
-                        }
+                        String[] temp3 = temp2[i].split(",");
+                        if (temp3.length == 3)
+                        services.getArretList().add(new Arret(temp3[0],Integer.parseInt(temp3[1]),Integer.parseInt(temp3[2])));
                     }
-                    System.out.println("ddddddddddd");
                 }
                 listServices.add(services);
                 /**
@@ -184,15 +339,6 @@ public class Main
                  */
             }
             myReader.close();
-            for (Demandes d : listDemandes)
-            {
-                System.out.println("ID : " + d.getID()
-                        + " Origine : " + d.getOrigine()
-                        + " Destination : " + d.getDestination()
-                        + " Date transport : " + d.getDateTransport()
-                        + " Date finale : " + d.getDateFinal()
-                        + " Volume : " + d.getNumber() );
-            }
         }
         catch (FileNotFoundException e)
         {

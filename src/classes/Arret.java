@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.Objects;
+
 public class Arret {
     String Position;
     int dateA;
@@ -34,4 +36,22 @@ public class Arret {
     public void setDateD(int dateD) {
         this.dateD = dateD;
     }
+
+    @Override
+    public String toString() {
+        return "Arret{" +
+                "Position='" + Position + '\'' +
+                ", dateA=" + dateA +
+                ", dateD=" + dateD +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Arret arret = (Arret) o;
+        return dateA == arret.dateA && dateD == arret.dateD && Objects.equals(Position, arret.Position);
+    }
+
 }
